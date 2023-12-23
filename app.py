@@ -1,37 +1,36 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Text, Optional
+from typing import Text
 from datetime import datetime
+from uuid import uuid4 as uuid
+import uvicorn
 
 app = FastAPI()
 
+posts = []
 
-DB = []
-
-## Al no tener una DB, creamos una estructura 
-
+# Post model
 class Post(BaseModel):
-    id: Optional[str]
+    id: str = str(uuid())
     title: str
     author: str
     content: Text
-    created_at: datetime = datetime.now
-    published_at: Optional[datetime]
+    created_at: datetime =  datetime.now()
+    published_at: datetime
     published: bool = False
-
-
-
 
 @app.get('/')
 def read_root():
-    return {"welcome": "Hola Mundo Emer"}
+    return {"welcome": "Welcome to my API"}
 
-@app.get('/database')
+# Mostramos toda la Data
+@app.get('/posts')
 def get_posts():
-    return DB
+    return posts
 
 
-@app.post('/datapost')
+# Guardamos la Data
+@app.post('/posts')
 def save_post(post: Post):
-    print(post)
-    return "received"
+    posts.append(post.dict())
+    return posts[-1]
